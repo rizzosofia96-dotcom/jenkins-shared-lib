@@ -10,7 +10,7 @@ class Bar implements Serializable {
 
     void analyzeRepo(String repoName) {
         steps.echo "Cloning repo: ${repoName}"
-        def repoUrl = "https://github.com/tuo-org/${repoName}.git"
+        def repoUrl = "https://github.com/rizzosofia96-dotcom/Sommaduenumeri"
         
         steps.dir(repoName) {
             steps.checkout([$class: 'GitSCM', branches: [[name: '*/main']], userRemoteConfigs: [[url: repoUrl]]])
