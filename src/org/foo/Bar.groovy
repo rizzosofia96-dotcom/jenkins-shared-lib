@@ -7,29 +7,26 @@ class Bar implements Serializable {
         this.steps = steps
     }
 
-    def cloneAndAnalyze(String repoUrl, String branch = 'main') {
-        // Stampa un messaggio di log che indica quale repo e branch verranno clonati
-        steps.echo "Cloning repo ${repoUrl} branch ${branch}"
+    def cloneAndAnalyze(String repoUrl, String branch = 'main', String credentialsId = null) {
+        steps.node {
+            steps.stage('Clone Repository') {
+                def scmConfig = [
+                    $class: 'GitSCM',
+                    branches: [[name: "*/${branch}"]],
+                    userRemoteConfigs: [[url: repoUrl]]
+                ]
+                if (credentialsId) {
+                    scmConfig.userRemoteConfigs[0].credentialsId = credentialsId
+                }
+                steps.checkout(scmConfig)
+            }
 
-        // Effettua il checkout del repository Git specificato, sul branch indicato
-        steps.checkout([
-            $class: 'GitSCM',
-            branches: [[name: branch]],
-            userRemoteConfigs: [[url: repoUrl]]
-        ])
-
-        // Stampa un messaggio di log per indicare l'inizio dell'analisi SonarQube
-        steps.echo "Running SonarQube analysis"
-
-        // Avvia il blocco con l'ambiente di SonarQube configurato su Jenkins con il nome 'sonarqube'
-        steps.withSonarQubeEnv('sonarqube') {
-            // Esegue il comando sonar-scanner in ambiente Windows tramite 'bat'
-            steps.bat '''
-                sonar-scanner ^
-                  -Dsonar.projectKey=Gestionerubrica ^
-                  -Dsonar.sources=. ^
-                  -Dsonar.java.binaries=.
-            '''
+            steps.stage('SonarQube Analysis') {
+                steps.withSonarQubeEnv('sonarqube') {
+                    def scannerHome = steps.tool 'sonar-scanner'  // Assicurati che il tool sia configurato in Jenkins
+                    steps.bat "${scannerHome}\\bin\\sonar-scanner.bat"
+                }
+            }
         }
     }
 }
