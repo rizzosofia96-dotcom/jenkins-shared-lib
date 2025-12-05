@@ -23,7 +23,7 @@ class Bar implements Serializable {
 
             steps.stage('SonarQube Analysis') {
                 steps.withSonarQubeEnv('sonarqube') {
-                    def scannerHome = steps.tool 'sonar-scanner'  // Assicurati che il tool sia configurato in Jenkins
+                    def scannerHome = steps.tool 'sonar-scanner'  
                     steps.bat "${scannerHome}\\bin\\sonar-scanner.bat"
                 }
             }
